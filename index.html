@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="light only">
+<meta name="theme-color" content="#f6f2ec">
+<meta name="format-detection" content="telephone=no, date=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Think·Pair·Share">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; media-src 'none'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<title>Think · Pair · Share</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23fff' stroke='%235468d4' stroke-width='4'/%3E%3Cpath d='M50 2A48 48 0 0 1 50 98A24 24 0 0 1 50 50A24 24 0 0 0 50 2Z' fill='%235468d4'/%3E%3Ccircle cx='50' cy='26' r='7' fill='%23fff'/%3E%3Ccircle cx='50' cy='74' r='7' fill='%235468d4'/%3E%3C/svg%3E">
+<style>
+/* =========================================================
+   Farben & Grundwerte
+   ========================================================= */
+:root{
+  --bg:#f6f2ec;
+  --card:#fffdf9;
+  --ink:#2b2724;
+  --ink-soft:#6f6760;
+  --ink-faint:#a39a91;
+  --line:#e6dfd5;
+
+  --think:#5468d4; --think-soft:#e8ebfb; --think-deep:#3c4fb3;
+  --pair:#2a9d8f;  --pair-soft:#dcf2ee;  --pair-deep:#1f7a6f;
+  --share:#dd7a3e; --share-soft:#fbeadd; --share-deep:#b65d27;
+
+  --phase:var(--think); --phase-soft:var(--think-soft); --phase-deep:var(--think-deep);
+
+  --radius:22px;
+  --shadow:0 1px 2px rgba(60,40,20,.06), 0 6px 20px rgba(60,40,20,.06);
+  /* Apple: SF Rounded · Windows: Segoe UI · Android/ChromeOS: Roboto · Linux: Ubuntu, Cantarell, Noto Sans, DejaVu Sans */
+  --font: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", "DejaVu Sans", "Helvetica Neue", Arial, sans-serif;
+}
+body[data-phase="pair"]{ --phase:var(--pair); --phase-soft:var(--pair-soft); --phase-deep:var(--pair-deep); }
+body[data-phase="share"]{ --phase:var(--share); --phase-soft:var(--share-soft); --phase-deep:var(--share-deep); }
+
+*{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; color-scheme:light; }
+body{
+  margin:0; min-height:100vh; min-height:100dvh;
+  background:var(--bg); color:var(--ink);
+  font-family:var(--font); line-height:1.35;
+  -webkit-tap-highlight-color:transparent;
+  padding:max(14px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+}
+button, a, input, textarea{ touch-action:manipulation; }
+button{ font:inherit; color:inherit; cursor:pointer; -webkit-appearance:none; appearance:none; }
+:focus-visible{ outline:3px solid var(--phase); outline-offset:3px; }
+
+.app{ max-width:1600px; margin:0 auto; display:flex; flex-direction:column; gap:14px; min-height:calc(100vh - 28px); min-height:calc(100dvh - 28px); }
+
+/* =========================================================
+   Kopfzeile: Logo + Digitaluhr | Titel | Analoguhr
+   ========================================================= */
+header{
+  display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:16px;
+}
+.head-left{ display:flex; align-items:center; gap:16px; min-width:0; }
+.logo{ display:block; width:66px; height:66px; flex:none; border-radius:50%; }
+.logo svg{ width:100%; height:100%; display:block; }
+.logo[href]{ cursor:pointer; }
+.logo[href]:active{ transform:scale(.96); }
+.yy-dark, .yy-dot-dark{ fill:var(--phase); transition:fill .8s ease; }
+.yy-ring{ stroke:var(--phase); transition:stroke .8s ease; }
+
+.digital .time{ font-size:clamp(28px,3.4vw,40px); font-weight:800; letter-spacing:.5px; font-variant-numeric:tabular-nums; line-height:1; }
+.digital .time small{ font-size:.5em; font-weight:700; color:var(--ink-soft); margin-left:4px; }
+.digital .date{ margin-top:6px; font-size:clamp(14px,1.5vw,18px); color:var(--ink-soft); font-weight:600; }
+
+.title{ text-align:center; font-size:clamp(20px,2.4vw,30px); font-weight:800; letter-spacing:.3px; white-space:nowrap; }
+.title span{ transition:color .6s; }
+.title .t-think{ color:var(--think); } .title .t-pair{ color:var(--pair); } .title .t-share{ color:var(--share); }
+.title .dot{ color:var(--ink-faint); margin:0 .2em; }
+
+.head-right{ display:flex; justify-content:flex-end; }
+.analog{ width:96px; height:96px; }
+.analog .face{ fill:var(--card); stroke:var(--line); stroke-width:2; }
+.analog .tick{ stroke:var(--ink-faint); stroke-width:1.4; stroke-linecap:round; }
+.analog .tick.major{ stroke:var(--ink-soft); stroke-width:2.4; }
+.analog .hand-h{ stroke:var(--ink); stroke-width:4.2; stroke-linecap:round; }
+.analog .hand-m{ stroke:var(--ink); stroke-width:2.8; stroke-linecap:round; }
+.analog .hand-s{ stroke:var(--phase); stroke-width:1.4; stroke-linecap:round; transition:stroke .8s; }
+.analog .hub{ fill:var(--phase); transition:fill .8s; }
+
+/* =========================================================
+   Karten & Raster
+   ========================================================= */
+.card{ background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); }
+.label{ font-size:13px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--ink-faint); }
+
+.layout{
+  display:grid; gap:14px; flex:1;
+  grid-template-columns:1fr;
+  grid-template-areas:"task" "phases" "timer" "phrases" "conn";
+}
+@media (orientation:landscape) and (min-width:1000px){
+  .layout{
+    grid-template-columns:1.08fr 1fr;
+    grid-template-areas:"task task" "phases phases" "timer phrases" "conn conn";
+    grid-template-rows:auto auto 1fr auto;
+  }
+}
+
+/* Aufgabe */
+.task{ grid-area:task; padding:14px 20px 16px; border-left:8px solid var(--phase); transition:border-color .8s; }
+.task textarea{
+  display:block; width:100%; overflow-wrap:anywhere; margin-top:6px; border:0; resize:none; background:transparent;
+  font:inherit; font-size:clamp(20px,2.3vw,28px); font-weight:700; color:var(--ink); line-height:1.3;
+  min-height:1.4em; max-height:9em; overflow:auto; padding:2px 0;
+}
+.task textarea:focus{ outline:none; }
+.task textarea::placeholder{ color:var(--ink-faint); font-weight:600; }
+.task .hint{ font-size:12.5px; color:var(--ink-faint); margin-top:4px; display:none; }
+.task.editing .hint{ display:block; }
+
+/* Phasen-Buttons */
+.phases{ grid-area:phases; display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.phase-btn{
+  --c:var(--think); --cs:var(--think-soft);
+  border:3px solid transparent; border-radius:18px; padding:12px 14px;
+  background:var(--cs); color:var(--c); text-align:center;
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  transition:background .4s, color .4s, border-color .4s, transform .15s, box-shadow .4s;
+}
+.phase-btn[data-p="pair"]{ --c:var(--pair); --cs:var(--pair-soft); }
+.phase-btn[data-p="share"]{ --c:var(--share); --cs:var(--share-soft); }
+.phase-btn .pname{ font-size:clamp(22px,2.6vw,32px); font-weight:900; letter-spacing:.3px; display:flex; align-items:center; gap:8px; }
+.phase-btn .psub{ font-size:clamp(14px,1.5vw,17px); font-weight:800; opacity:.85; }
+.phase-btn .num{ display:inline-grid; place-items:center; width:1.3em; height:1.3em; border-radius:50%; background:var(--c); color:#fff; font-size:.62em; }
+.phase-btn .pmin{ font-size:13px; font-weight:700; opacity:.7; }
+.phase-btn[aria-pressed="true"]{
+  background:var(--c); color:#fff; border-color:rgba(0,0,0,.08);
+  box-shadow:0 6px 18px rgba(0,0,0,.14);
+  box-shadow:0 6px 18px color-mix(in srgb, var(--c) 35%, transparent);
+}
+.phase-btn[aria-pressed="true"] .num{ background:#fff; color:var(--c); }
+.phase-btn:active{ transform:scale(.98); }
+
+/* Timer */
+.timer{ grid-area:timer; padding:22px 24px; display:flex; flex-direction:column; gap:12px; }
+.instr{ font-size:clamp(24px,min(3.4vw,4.6vh),44px); font-weight:900; color:var(--phase-deep); line-height:1.12; transition:color .8s; }
+.detail{ font-size:clamp(18px,2vw,24px); font-weight:600; color:var(--ink-soft); }
+.status{ min-height:1.4em; font-size:17px; font-weight:700; color:var(--phase); transition:color .8s; }
+.clock-row{ display:flex; align-items:flex-end; justify-content:center; margin-top:auto; }
+.countdown{ font-size:clamp(64px,min(10vw,13vh),132px); font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:1px; line-height:1; color:var(--ink); transition:color .8s, opacity .4s; }
+.timer.paused .countdown{ opacity:.55; }
+.progress{ height:16px; border-radius:99px; background:var(--phase-soft); overflow:hidden; transition:background .8s; }
+.progress .fill{ height:100%; width:0; border-radius:99px; background:var(--phase); background:linear-gradient(90deg, color-mix(in srgb,var(--phase) 55%, #fff), var(--phase)); transition:width .9s linear, background .8s; }
+
+.controls{ display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
+.ctrl{
+  border:2px solid var(--line); background:var(--card); border-radius:16px;
+  min-width:64px; height:64px; padding:0 16px;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  font-weight:800; font-size:16px; color:var(--ink-soft);
+  transition:background .3s, border-color .3s, color .3s, transform .1s;
+}
+.ctrl svg{ width:26px; height:26px; }
+.ctrl:active{ transform:scale(.96); }
+.ctrl.primary{ background:var(--phase); border-color:var(--phase); color:#fff; min-width:170px; font-size:19px; }
+.ctrl:disabled{ opacity:.35; cursor:default; }
+
+/* Redemittel */
+.phrases{ grid-area:phrases; padding:20px 22px; display:flex; flex-direction:column; gap:12px; }
+.phrases h2{ margin:0; font-size:20px; font-weight:900; color:var(--phase-deep); transition:color .8s; }
+.levels{ display:grid; grid-template-columns:1fr 1fr; gap:12px; flex:1; }
+.level{ background:var(--phase-soft); border-radius:16px; padding:12px 14px; transition:background .8s; }
+.level h3{ margin:0 0 8px; font-size:14px; font-weight:800; color:var(--phase-deep); letter-spacing:.3px; display:flex; align-items:center; gap:6px; transition:color .8s; }
+.level h3 .stars{ letter-spacing:1px; }
+.level ul{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:7px; }
+.level li{ font-size:clamp(16px,1.7vw,20px); font-weight:700; background:rgba(255,255,255,.75); border-radius:10px; padding:7px 10px; }
+
+/* Konnektoren */
+.conn{ grid-area:conn; padding:14px 20px 16px; text-align:center; }
+.conn .motiv{ font-size:clamp(17px,1.9vw,22px); font-weight:800; color:var(--phase-deep); transition:color .8s; }
+.conn-row{ display:flex; justify-content:center; flex-wrap:wrap; gap:10px 14px; margin-top:10px; }
+.conn-item{ display:flex; flex-direction:column; align-items:center; min-width:96px; padding:8px 14px; border-radius:14px; background:var(--phase-soft); transition:background .8s; }
+.conn-item .w{ font-size:clamp(20px,2.2vw,26px); font-weight:900; color:var(--ink); white-space:nowrap; }
+.conn-item .tr{ font-size:14px; font-weight:600; color:var(--ink-faint); margin-top:1px; }
+.conn-arrow{ align-self:center; color:var(--ink-faint); font-weight:800; font-size:18px; }
+
+/* Fußzeile */
+footer{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.tools{ display:flex; gap:8px; flex-wrap:wrap; }
+.tool{ border:1px solid var(--line); background:var(--card); border-radius:12px; padding:9px 13px; font-size:14px; font-weight:700; color:var(--ink-soft); display:inline-flex; align-items:center; gap:7px; }
+.tool svg{ width:18px; height:18px; }
+.tool[aria-pressed="false"]{ opacity:.6; }
+.privacy{ font-size:13px; color:var(--ink-faint); font-weight:600; display:flex; align-items:center; gap:6px; }
+.privacy svg{ width:15px; height:15px; }
+
+/* =========================================================
+   Dialoge (Einrichtung & Bestätigung)
+   ========================================================= */
+.overlay{
+  position:fixed; top:0; right:0; bottom:0; left:0; z-index:50; display:none; align-items:center; justify-content:center;
+  background:rgba(43,39,36,.38); padding:20px;
+  -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+}
+.overlay.open{ display:flex; animation:fade .25s ease; }
+@keyframes fade{ from{opacity:0} to{opacity:1} }
+.dialog{ background:var(--card); border-radius:26px; box-shadow:0 20px 60px rgba(0,0,0,.2); width:min(640px,100%); max-height:calc(100vh - 40px); max-height:calc(100dvh - 40px); overflow:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; padding:28px 30px; }
+.dialog h2{ margin:0 0 6px; font-size:28px; font-weight:900; }
+.dialog p.lead{ margin:0 0 20px; color:var(--ink-soft); font-weight:600; }
+.dialog .section{ margin:18px 0; }
+.dialog .section > .label{ display:block; margin-bottom:10px; }
+
+.langs{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.lang-btn{ border:3px solid var(--line); background:#fff; border-radius:18px; padding:16px; display:flex; align-items:center; gap:14px; text-align:left; transition:border-color .2s, background .2s; }
+.lang-btn .badge{ width:52px; height:52px; border-radius:50%; display:grid; place-items:center; font-weight:900; font-size:19px; color:#fff; background:var(--ink-faint); flex:none; transition:background .2s; }
+.lang-btn b{ display:block; font-size:20px; } .lang-btn span.sub{ color:var(--ink-soft); font-weight:600; font-size:14px; }
+.lang-btn[aria-pressed="true"]{ border-color:var(--think); background:var(--think-soft); }
+.lang-btn[aria-pressed="true"] .badge{ background:var(--think); }
+
+.dur-row{ display:grid; grid-template-columns:1fr auto; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid var(--line); }
+.dur-row:last-child{ border-bottom:0; }
+.dur-row .pn{ font-size:20px; font-weight:900; }
+.dur-row[data-p="think"] .pn{ color:var(--think); } .dur-row[data-p="pair"] .pn{ color:var(--pair); } .dur-row[data-p="share"] .pn{ color:var(--share); }
+.stepper{ display:flex; align-items:center; gap:8px; }
+.stepper button{ width:48px; height:48px; border-radius:14px; border:2px solid var(--line); background:#fff; font-size:24px; font-weight:800; color:var(--ink-soft); }
+.stepper input{ width:76px; height:48px; border-radius:14px; border:2px solid var(--line); text-align:center; font:inherit; font-size:21px; font-weight:800; color:var(--ink); background:#fff; -moz-appearance:textfield; }
+.stepper input::-webkit-inner-spin-button, .stepper input::-webkit-outer-spin-button{ -webkit-appearance:none; margin:0; }
+.stepper .unit{ font-weight:700; color:var(--ink-soft); width:34px; }
+
+.sound-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.check{ display:flex; align-items:center; gap:10px; font-weight:700; font-size:17px; cursor:pointer; }
+.check input{ width:24px; height:24px; accent-color:var(--think); }
+
+.btn{ border:0; border-radius:16px; padding:15px 22px; font-weight:800; font-size:18px; }
+.btn.main{ background:var(--think); color:#fff; width:100%; margin-top:10px; padding:18px; font-size:20px; }
+.btn.main:disabled{ opacity:.4; cursor:default; }
+.btn.ghost{ background:transparent; border:2px solid var(--line); color:var(--ink-soft); font-size:15px; padding:11px 16px; }
+.btn.link{ background:none; color:var(--ink-faint); font-size:14px; padding:8px 0; text-decoration:underline; font-weight:700; }
+.setup-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:6px; gap:10px; flex-wrap:wrap; }
+.setup-note{ font-size:13px; color:var(--ink-faint); font-weight:600; }
+
+.confirm .dialog{ width:min(460px,100%); text-align:center; padding:28px; }
+.confirm .q{ font-size:24px; font-weight:900; margin:4px 0 22px; }
+.confirm .row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.confirm .btn.ok{ background:var(--phase); color:#fff; }
+.confirm .btn.cancel{ background:#efe9e1; color:var(--ink-soft); }
+.confirm kbd{ font:inherit; font-size:12px; font-weight:700; opacity:.7; display:block; margin-top:2px; }
+
+/* Vollbild / Präsentation: etwas größer */
+:-webkit-full-screen .countdown{ font-size:clamp(80px,min(12vw,15vh),160px); }
+:fullscreen .countdown{ font-size:clamp(80px,min(12vw,15vh),160px); }
+
+@media (prefers-reduced-motion:reduce){
+  *{ transition:none !important; animation:none !important; }
+}
+/* Hover nur bei Maus/Trackpad (PC), nicht auf Touchgeräten */
+@media (hover:hover) and (pointer:fine){
+  .ctrl:not(:disabled):hover{ border-color:var(--phase); color:var(--phase); }
+  .ctrl.primary:not(:disabled):hover{ color:#fff; filter:brightness(1.06); }
+  .tool:hover, .btn.ghost:hover{ border-color:var(--ink-faint); color:var(--ink); }
+  .phase-btn[aria-pressed="false"]:hover{ border-color:var(--c); }
+  .lang-btn:hover, .stepper button:hover{ border-color:var(--ink-faint); }
+  .btn.main:not(:disabled):hover, .confirm .btn.ok:hover{ filter:brightness(1.06); }
+}
+
+/* Große Monitore (Full HD und mehr) */
+@media (min-width:1700px) and (min-height:950px){
+  .analog{ width:110px; height:110px; }
+  .logo{ width:74px; height:74px; }
+}
+
+/* Begrenzte Fensterhöhe (Browserleisten!): Konnektoren rechts unter die Redemittel */
+@media (orientation:landscape) and (min-width:1000px) and (max-height:1000px){
+  .layout{
+    grid-template-areas:"task task" "phases phases" "timer phrases" "timer conn";
+    grid-template-rows:auto auto 1fr auto;
+  }
+  .conn-row{ flex-wrap:nowrap; gap:8px; }
+  .conn-item{ min-width:0; flex:0 1 auto; padding:6px 12px; }
+}
+
+/* Laptops mit geringer Bildschirmhöhe (z. B. 1366×768, 1280×720) */
+@media (orientation:landscape) and (min-width:1000px) and (max-height:920px){
+  body{ padding-top:10px; padding-bottom:10px; }
+  .app, .layout{ gap:10px; }
+  .logo{ width:52px; height:52px; }
+  .analog{ width:72px; height:72px; }
+  .digital .time{ font-size:30px; }
+  .digital .date{ font-size:14px; margin-top:3px; }
+  .task{ padding:10px 18px 12px; }
+  .task textarea{ font-size:22px; }
+  .phase-btn{ padding:8px 12px; }
+  .phase-btn .pname{ font-size:24px; }
+  .timer{ padding:16px 20px; gap:8px; }
+  .detail{ font-size:18px; }
+  .ctrl{ height:54px; min-width:54px; }
+  .phrases{ padding:14px 18px; gap:8px; }
+  .level li{ font-size:16px; padding:6px 10px; }
+  .conn{ padding:10px 16px 12px; }
+  .conn-row{ margin-top:6px; }
+  .conn-item{ padding:6px 12px; }
+  .conn-item .w{ font-size:19px; }
+  .conn-item{ padding:5px 10px; }
+  .conn .motiv{ font-size:17px; }
+}
+@media (orientation:landscape) and (min-width:1000px) and (max-height:700px){
+  .task .label{ display:none; }
+  .task textarea{ margin-top:0; font-size:20px; }
+  .phase-btn .pmin{ display:none; }
+  .phase-btn .pname{ font-size:22px; }
+  .digital .time{ font-size:26px; }
+  .logo{ width:44px; height:44px; } .analog{ width:60px; height:60px; }
+  .status{ font-size:15px; min-height:1.2em; }
+  .level h3{ margin-bottom:5px; }
+  .level ul{ gap:5px; }
+  footer .tool{ padding:6px 11px; }
+  body{ padding-top:8px; padding-bottom:8px; }
+  .app, .layout{ gap:8px; }
+  .phase-btn{ padding:5px 10px; }
+  .phase-btn .pname{ font-size:20px; }
+  .phase-btn .psub{ font-size:13px; }
+  .phrases{ padding:10px 14px; gap:6px; }
+  .phrases h2{ font-size:17px; }
+  .level{ padding:8px 10px; }
+  .level li{ font-size:15px; padding:4px 8px; }
+  .conn{ padding:8px 12px 10px; }
+  .conn .motiv{ font-size:15px; }
+  .conn-item{ padding:4px 9px; }
+  .conn-item .w{ font-size:17px; }
+  .conn-item .tr{ font-size:12px; }
+}
+
+/* Tablets im Hochformat und kleine Tablets */
+@media (max-width:820px){
+  .levels{ grid-template-columns:1fr; }
+}
+
+/* Smartphones */
+@media (max-width:600px){
+  body{ padding:max(10px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); }
+  .app, .layout{ gap:10px; }
+  :root{ --radius:18px; }
+  header{ grid-template-columns:1fr auto; gap:10px; }
+  .title{ display:none; }
+  .head-left{ gap:10px; }
+  .logo{ width:46px; height:46px; }
+  .digital .time{ font-size:26px; }
+  .digital .date{ font-size:13px; margin-top:3px; }
+  .analog{ width:62px; height:62px; }
+
+  .task{ padding:10px 14px 12px; border-left-width:6px; }
+  .task textarea{ font-size:19px; }
+
+  .phases{ gap:8px; }
+  .phase-btn{ padding:8px 4px; border-radius:14px; border-width:2px; }
+  .phase-btn .pname{ font-size:19px; gap:5px; }
+  .phase-btn .psub{ font-size:12px; }
+  .phase-btn .pmin{ font-size:11.5px; }
+
+  .timer{ padding:16px; gap:8px; }
+  .instr{ font-size:25px; }
+  .detail{ font-size:16px; }
+  .status{ font-size:15px; }
+  .countdown{ font-size:clamp(60px,20vw,92px); }
+  .progress{ height:12px; }
+  .controls{ gap:8px; flex-wrap:nowrap; }
+  .ctrl{ height:54px; min-width:50px; padding:0 10px; border-radius:14px; }
+  .ctrl svg{ width:22px; height:22px; }
+  .ctrl.primary{ min-width:0; flex:1 1 auto; max-width:180px; font-size:17px; }
+
+  .phrases{ padding:14px; gap:8px; }
+  .phrases h2{ font-size:18px; }
+  .level{ padding:10px 12px; }
+  .level li{ font-size:16px; padding:6px 9px; }
+
+  .conn{ padding:12px 10px 14px; }
+  .conn .motiv{ font-size:16px; }
+  .conn-row{ gap:6px; }
+  .conn-item{ min-width:0; padding:6px 10px; border-radius:12px; }
+  .conn-item .w{ font-size:18px; }
+  .conn-item .tr{ font-size:12px; }
+
+  footer{ justify-content:center; }
+  .tools{ justify-content:center; }
+  .tool{ padding:9px 11px; font-size:13px; }
+  .privacy{ width:100%; justify-content:center; }
+
+  .overlay{ padding:12px; align-items:flex-start; }
+  .dialog{ padding:20px; border-radius:22px; max-height:calc(100vh - 24px); max-height:calc(100dvh - 24px); }
+  .dialog h2{ font-size:24px; }
+  .langs{ grid-template-columns:1fr; gap:8px; }
+  .lang-btn{ padding:12px; }
+  .lang-btn .badge{ width:44px; height:44px; font-size:16px; }
+  .dur-row .pn{ font-size:18px; }
+  .stepper{ gap:6px; }
+  .stepper button{ width:44px; height:44px; }
+  .stepper input{ width:62px; height:44px; font-size:19px; }
+  .stepper .unit{ width:auto; font-size:14px; }
+  .btn.main{ padding:16px; font-size:18px; }
+  .confirm .dialog{ padding:22px 18px; }
+  .confirm .q{ font-size:20px; }
+}
+
+/* Sehr schmale Handys (z. B. iPhone SE 1. Gen., 320 px) */
+@media (max-width:360px){
+  .digital .time small{ display:none; }
+  .phase-btn .num{ display:none; }
+  .ctrl{ min-width:44px; padding:0 8px; }
+  .ctrl.primary{ font-size:16px; }
+  .dialog{ padding:18px 14px; }
+  .stepper{ gap:4px; }
+  .stepper button{ width:40px; height:42px; }
+  .stepper input{ width:52px; height:42px; }
+}
+
+/* Handys im Querformat: kompakter, Inhalte untereinander scrollbar */
+@media (orientation:landscape) and (max-height:520px){
+  body{ padding-top:max(8px, env(safe-area-inset-top)); padding-bottom:max(8px, env(safe-area-inset-bottom)); }
+  .app, .layout{ gap:8px; }
+  header{ grid-template-columns:1fr auto 1fr; }
+  .title{ display:block; font-size:20px; }
+  .logo{ width:42px; height:42px; }
+  .analog{ width:54px; height:54px; }
+  .digital .time{ font-size:22px; }
+  .digital .date{ font-size:12px; }
+  .layout{ grid-template-columns:1fr 1fr; grid-template-rows:auto 1fr auto auto; grid-template-areas:"task timer" "phases timer" "phrases phrases" "conn conn"; }
+  .levels{ grid-template-columns:1fr 1fr; }
+  .task .label{ display:none; }
+  .task textarea{ margin-top:0; font-size:17px; }
+  .phases{ align-self:start; gap:6px; }
+  .phase-btn .pmin{ display:none; }
+  .status{ font-size:14px; min-height:1.2em; }
+  .timer{ padding:12px 14px; gap:6px; }
+  .instr{ font-size:21px; }
+  .detail{ font-size:15px; }
+  .countdown{ font-size:clamp(52px,16vh,80px); }
+  .ctrl{ height:46px; min-width:46px; }
+  .ctrl.primary{ min-width:110px; font-size:16px; }
+  .phase-btn{ padding:6px 8px; }
+  .phase-btn .pname{ font-size:19px; }
+  .phase-btn .psub, .phase-btn .pmin{ font-size:11.5px; }
+  .phrases{ padding:12px; }
+  .level li{ font-size:15px; padding:5px 8px; }
+  .overlay{ align-items:flex-start; padding:8px; }
+  .dialog{ padding:16px 20px; }
+}
+</style>
+</head>
+<body data-phase="think">
+<div class="app">
+
+  <!-- Kopfzeile -->
+  <header>
+    <div class="head-left">
+      <a class="logo" id="logo" aria-label="Think · Pair · Share">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle class="yy-ring" cx="50" cy="50" r="47" fill="#fff" stroke-width="4"/>
+          <path class="yy-dark" d="M50 3A47 47 0 0 1 50 97A23.5 23.5 0 0 1 50 50A23.5 23.5 0 0 0 50 3Z"/>
+          <circle cx="50" cy="26.5" r="7" fill="#fff"/>
+          <circle class="yy-dot-dark" cx="50" cy="73.5" r="7"/>
+        </svg>
+      </a>
+      <div class="digital" aria-live="off">
+        <div class="time" id="dTime">--:--</div>
+        <div class="date" id="dDate"></div>
+      </div>
+    </div>
+    <div class="title" aria-hidden="true"><span class="t-think">Think</span><span class="dot">·</span><span class="t-pair">Pair</span><span class="dot">·</span><span class="t-share">Share</span></div>
+    <div class="head-right">
+      <svg class="analog" id="analog" viewBox="0 0 100 100" role="img" aria-label="Analoge Uhr">
+        <circle class="face" cx="50" cy="50" r="47"/>
+        <g id="ticks"></g>
+        <line class="hand-h" id="hH" x1="50" y1="50" x2="50" y2="27"/>
+        <line class="hand-m" id="hM" x1="50" y1="50" x2="50" y2="15"/>
+        <line class="hand-s" id="hS" x1="50" y1="58" x2="50" y2="10"/>
+        <circle class="hub" cx="50" cy="50" r="3"/>
+      </svg>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- Aufgabe -->
+    <section class="card task" id="taskCard">
+      <div class="label">Aufgabe</div>
+      <textarea id="task" rows="1" placeholder="Hier die Aufgabe in der Zielsprache eingeben …" aria-label="Aufgabe"></textarea>
+      <div class="hint">Zum Beenden außerhalb tippen oder Esc drücken – dann funktionieren die Tastenkürzel wieder.</div>
+    </section>
+
+    <!-- Phasen -->
+    <nav class="phases" aria-label="Phasen">
+      <button class="phase-btn" data-p="think" aria-pressed="true"><span class="pname"><span class="num">1</span>Think</span><span class="psub" id="sub-think"></span><span class="pmin" id="min-think"></span></button>
+      <button class="phase-btn" data-p="pair" aria-pressed="false"><span class="pname"><span class="num">2</span>Pair</span><span class="psub" id="sub-pair"></span><span class="pmin" id="min-pair"></span></button>
+      <button class="phase-btn" data-p="share" aria-pressed="false"><span class="pname"><span class="num">3</span>Share</span><span class="psub" id="sub-share"></span><span class="pmin" id="min-share"></span></button>
+    </nav>
+
+    <!-- Timer -->
+    <section class="card timer paused" id="timerCard">
+      <div class="instr" id="instr"></div>
+      <div class="detail" id="detail"></div>
+      <div class="status" id="status" aria-live="polite"></div>
+      <div class="clock-row"><div class="countdown" id="countdown" role="timer" aria-live="off">0:00</div></div>
+      <div class="progress" aria-hidden="true"><div class="fill" id="fill"></div></div>
+      <div class="controls">
+        <button class="ctrl" id="btnPrev" title="Vorherige Phase (Pfeil links)" aria-label="Vorherige Phase">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button class="ctrl primary" id="btnPlay" title="Start/Pause (Leertaste)"></button>
+        <button class="ctrl" id="btnNext" title="Nächste Phase (Pfeil rechts)" aria-label="Nächste Phase">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <button class="ctrl" id="btnReset" title="Von vorn beginnen" aria-label="Von vorn beginnen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- Redemittel -->
+    <section class="card phrases">
+      <h2 id="phrasesTitle"></h2>
+      <div class="levels">
+        <div class="level"><h3><span class="stars">★</span><span id="lvlA"></span></h3><ul id="listA"></ul></div>
+        <div class="level"><h3><span class="stars">★★</span><span id="lvlB"></span></h3><ul id="listB"></ul></div>
+      </div>
+    </section>
+
+    <!-- Konnektoren -->
+    <section class="card conn">
+      <div class="motiv" id="motiv"></div>
+      <div class="conn-row" id="connRow"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="tools">
+      <button class="tool" id="btnSetup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Neu einrichten</button>
+      <button class="tool" id="btnSound" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg><span id="soundLabel">Ton an</span></button>
+      <button class="tool" id="btnFull" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>Vollbild</button>
+    </div>
+    <div class="privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Keine Daten verlassen dieses Gerät.</div>
+  </footer>
+</div>
+
+<!-- Einrichtung -->
+<div class="overlay" id="setup" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
+  <div class="dialog">
+    <h2 id="setupTitle">Einrichtung</h2>
+    <p class="lead">Einmal festlegen – die Einstellungen werden nur in diesem Browser gespeichert.</p>
+
+    <div class="section">
+      <span class="label">Fach</span>
+      <div class="langs">
+        <button class="lang-btn" data-lang="fr" aria-pressed="false"><span class="badge">FR</span><span><b>Französisch</b><span class="sub">Français</span></span></button>
+        <button class="lang-btn" data-lang="es" aria-pressed="false"><span class="badge">ES</span><span><b>Spanisch</b><span class="sub">Español</span></span></button>
+      </div>
+    </div>
+
+    <div class="section">
+      <span class="label">Dauer pro Phase</span>
+      <div class="dur-row" data-p="think"><span class="pn">Think</span><div class="stepper"><button type="button" data-step="-1" aria-label="Think kürzer">−</button><input type="text" inputmode="decimal" autocomplete="off" id="dur-think" aria-label="Think in Minuten"><button type="button" data-step="1" aria-label="Think länger">+</button><span class="unit">Min.</span></div></div>
+      <div class="dur-row" data-p="pair"><span class="pn">Pair</span><div class="stepper"><button type="button" data-step="-1" aria-label="Pair kürzer">−</button><input type="text" inputmode="decimal" autocomplete="off" id="dur-pair" aria-label="Pair in Minuten"><button type="button" data-step="1" aria-label="Pair länger">+</button><span class="unit">Min.</span></div></div>
+      <div class="dur-row" data-p="share"><span class="pn">Share</span><div class="stepper"><button type="button" data-step="-1" aria-label="Share kürzer">−</button><input type="text" inputmode="decimal" autocomplete="off" id="dur-share" aria-label="Share in Minuten"><button type="button" data-step="1" aria-label="Share länger">+</button><span class="unit">Min.</span></div></div>
+    </div>
+
+    <div class="section sound-row">
+      <label class="check"><input type="checkbox" id="setupSound" checked> Signalton (Klangschale)</label>
+      <button type="button" class="btn ghost" id="testSound">Ton testen</button>
+    </div>
+
+    <button class="btn main" id="setupSave" disabled>Speichern &amp; loslegen</button>
+    <div class="setup-foot">
+      <span class="setup-note">Halbe Minuten möglich, z. B. 1,5</span>
+      <button type="button" class="btn link" id="setupClear">Gespeicherte Daten löschen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bestätigung -->
+<div class="overlay confirm" id="confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirmQ">
+  <div class="dialog">
+    <div class="q" id="confirmQ"></div>
+    <div class="row">
+      <button class="btn cancel" id="confirmNo">Abbrechen<kbd>Esc</kbd></button>
+      <button class="btn ok" id="confirmYes">OK<kbd>Enter</kbd></button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* =========================================================
+   Sprachtexte – zentral, damit weitere Sprachen leicht
+   ergänzt werden können (einfach einen Block kopieren).
+   ========================================================= */
+const LANG = {
+  fr: {
+    locale: "fr-FR",
+    phases: {
+      think: { sub: "Réfléchir", instr: "Réfléchis seul(e).", detail: "Lis la tâche et note tes idées.",
+               motiv: "Utilise les connecteurs pour organiser tes idées !" },
+      pair:  { sub: "Discuter",  instr: "Parle avec ton/ta partenaire.", detail: "Comparez vos idées.",
+               motiv: "Utilisez les connecteurs pour bien expliquer !" },
+      share: { sub: "Partager",  instr: "Présentez vos idées.", detail: "Partagez vos résultats avec la classe.",
+               motiv: "Utilisez les connecteurs pour présenter !" }
+    },
+    phrasesTitle: "Phrases utiles",
+    levelA: "Facile",
+    levelB: "Pour aller plus loin",
+    phrases: {
+      think: { a: ["Je pense que …", "À mon avis, …", "Je note : …"],
+               b: ["Il me semble que …", "D'un côté …, de l'autre …", "Je me demande si …"] },
+      pair:  { a: ["Et toi, qu'est-ce que tu penses ?", "Je suis d'accord.", "Je ne suis pas d'accord.", "Tu peux répéter, s'il te plaît ?"],
+               b: ["Pourquoi est-ce que tu penses ça ?", "Je suis d'accord avec toi, mais …", "Je vois les choses autrement : …", "Qu'est-ce que tu veux dire par … ?"] },
+      share: { a: ["Nous pensons que …", "Mon/Ma partenaire et moi, nous …", "Notre idée, c'est …"],
+               b: ["Nous avons constaté que …", "En résumé, …", "Nous ne sommes pas d'accord sur …"] }
+    },
+    connectors: [["d'abord","zuerst"],["puis","dann"],["après","danach"],["ensuite","anschließend"],["enfin","schließlich"]],
+    ready: "Prêt(e)s ?",
+    paused: "Pause",
+    timeUp: "Le temps est écoulé. Étape suivante :",
+    doneTitle: "Bravo ! C'est fini.",
+    doneDetail: "Merci pour votre travail."
+  },
+  es: {
+    locale: "es-ES",
+    phases: {
+      think: { sub: "Pensar",    instr: "Piensa solo/a.", detail: "Lee la tarea y apunta tus ideas.",
+               motiv: "¡Utiliza los conectores para ordenar tus ideas!" },
+      pair:  { sub: "En pareja", instr: "Habla con tu compañero/a.", detail: "Comparad vuestras ideas.",
+               motiv: "¡Utilizad los conectores para explicar bien!" },
+      share: { sub: "Compartir", instr: "Presentad vuestras ideas.", detail: "Compartid los resultados con la clase.",
+               motiv: "¡Utilizad los conectores para presentar!" }
+    },
+    phrasesTitle: "Frases útiles",
+    levelA: "Fácil",
+    levelB: "Para ir más allá",
+    phrases: {
+      think: { a: ["Pienso que …", "En mi opinión, …", "Apunto: …"],
+               b: ["Me parece que …", "Por un lado …, por otro lado …", "Me pregunto si …"] },
+      pair:  { a: ["¿Y tú, qué piensas?", "Estoy de acuerdo.", "No estoy de acuerdo.", "¿Puedes repetir, por favor?"],
+               b: ["¿Por qué piensas eso?", "Estoy de acuerdo contigo, pero …", "Yo lo veo de otra manera: …", "¿Qué quieres decir con …?"] },
+      share: { a: ["Pensamos que …", "Mi compañero/a y yo …", "Nuestra idea es …"],
+               b: ["Hemos visto que …", "En resumen, …", "No estamos de acuerdo en …"] }
+    },
+    connectors: [["primero","zuerst"],["después","danach"],["luego","dann"],["además","außerdem"],["al final","am Ende"]],
+    ready: "¿Listos?",
+    paused: "Pausa",
+    timeUp: "Se acabó el tiempo. Siguiente paso:",
+    doneTitle: "¡Muy bien! Habéis terminado.",
+    doneDetail: "Gracias por vuestro trabajo."
+  }
+};
+const PHASES = ["think", "pair", "share"];
+const PHASE_NAMES = { think: "Think", pair: "Pair", share: "Share" };
+
+/* =========================================================
+   Speicher (nur lokal im Browser, abgesichert)
+   ========================================================= */
+const STORE_KEY = "think-pair-share-v1";
+const DEFAULTS = { lang: null, durations: { think: 3, pair: 5, share: 7 }, sound: true, task: "" };
+
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return structuredCloneSafe(DEFAULTS);
+    const s = JSON.parse(raw);
+    return {
+      lang: LANG[s.lang] ? s.lang : null,
+      durations: Object.assign({}, DEFAULTS.durations, s.durations || {}),
+      sound: s.sound !== false,
+      task: typeof s.task === "string" ? s.task : ""
+    };
+  } catch (e) { return structuredCloneSafe(DEFAULTS); }
+}
+function saveSettings() { try { localStorage.setItem(STORE_KEY, JSON.stringify(settings)); } catch (e) {} }
+function clearSettings() { try { localStorage.removeItem(STORE_KEY); } catch (e) {} }
+function structuredCloneSafe(o) { return JSON.parse(JSON.stringify(o)); }
+
+let settings = loadSettings();
+
+/* =========================================================
+   Hilfsfunktionen
+   ========================================================= */
+const $ = (id) => document.getElementById(id);
+const T = () => LANG[settings.lang] || LANG.fr;
+const deNum = (m) => String(m).replace(".", ",");
+const minutesLabel = (m) => deNum(m) + " Min.";
+function clampMinutes(v) {
+  v = parseFloat(String(v).replace(",", "."));
+  if (!isFinite(v)) v = 1;
+  v = Math.round(v * 2) / 2;
+  return Math.min(60, Math.max(0.5, v));
+}
+function fmt(ms) {
+  const s = Math.max(0, Math.ceil(ms / 1000));
+  return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+}
+
+/* =========================================================
+   GitHub-Link automatisch aus der Adresse ableiten
+   name.github.io/repo/  ->  github.com/name/repo
+   name.github.io/       ->  github.com/name/name.github.io
+   ========================================================= */
+function githubRepoUrl(host, path) {
+  host = String(host || "").toLowerCase();
+  const suffix = ".github.io";
+  if (!host.endsWith(suffix)) return null;
+  const user = host.slice(0, -suffix.length);
+  if (!user || user.includes(".")) return null;
+  const first = String(path || "").split("/").filter(Boolean)[0];
+  const repo = first && !/\.[a-z0-9]+$/i.test(first) ? decodeURIComponent(first) : user + suffix;
+  return "https://github.com/" + user + "/" + repo;
+}
+(function setupLogo() {
+  const url = githubRepoUrl(location.hostname, location.pathname);
+  const a = $("logo");
+  if (url) {
+    a.href = url; a.target = "_blank"; a.rel = "noopener noreferrer";
+    a.title = "Projekt auf GitHub öffnen"; a.setAttribute("aria-label", "Projekt auf GitHub öffnen");
+  }
+})();
+
+/* =========================================================
+   Uhren
+   ========================================================= */
+(function buildTicks() {
+  const g = $("ticks"); let html = "";
+  for (let i = 0; i < 60; i++) {
+    const major = i % 5 === 0;
+    html += '<line class="tick' + (major ? " major" : "") + '" x1="50" y1="' + (major ? 7 : 5.5) + '" x2="50" y2="' + (major ? 13.5 : 9) + '" transform="rotate(' + (i * 6) + ' 50 50)"/>';
+  }
+  g.innerHTML = html;
+})();
+let lastDigital = "";
+function updateClocks() {
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes(), s = now.getSeconds(), ms = now.getMilliseconds();
+  const sec = s + ms / 1000;
+  $("hS").setAttribute("transform", "rotate(" + (sec * 6) + " 50 50)");
+  $("hM").setAttribute("transform", "rotate(" + ((m + sec / 60) * 6) + " 50 50)");
+  $("hH").setAttribute("transform", "rotate(" + (((h % 12) + m / 60) * 30) + " 50 50)");
+  const key = h + ":" + m + ":" + s + (settings.lang || "");
+  if (key !== lastDigital) {
+    lastDigital = key;
+    $("dTime").innerHTML = String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + "<small>" + String(s).padStart(2, "0") + "</small>";
+    const loc = settings.lang ? T().locale : "de-DE";
+    let d;
+    try { d = new Intl.DateTimeFormat(loc, { weekday: "long", day: "numeric", month: "long" }).format(now); }
+    catch (e) { d = now.toLocaleDateString(); }
+    $("dDate").textContent = d;
+    $("dDate").lang = settings.lang || "de";
+  }
+  requestAnimationFrame(updateClocks);
+}
+
+/* =========================================================
+   Klangschale (Web Audio API, keine Audiodatei)
+   ========================================================= */
+let actx = null;
+function ensureAudio() {
+  try {
+    if (!actx) {
+      const C = window.AudioContext || window.webkitAudioContext;
+      if (!C) return;
+      actx = new C();
+      // kurzer stiller Impuls entsperrt Audio auf iPad/iPhone
+      const o = actx.createOscillator(), g = actx.createGain();
+      g.gain.value = 0; o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime + 0.01);
+    }
+    if (actx.state === "suspended") actx.resume();
+  } catch (e) {}
+}
+function bowl(force) {
+  if (!force && !settings.sound) return;
+  ensureAudio();
+  if (!actx) return;
+  try {
+    const t = actx.currentTime + 0.05;
+    const master = actx.createGain(); master.gain.value = 0.2;
+    const lp = actx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 2600;
+    master.connect(lp); lp.connect(actx.destination);
+    const base = 220;
+    // [Frequenzverhältnis, Lautstärke, Ausklingzeit in s] – leicht verstimmte Paare erzeugen das typische Schweben
+    const partials = [[1, 0.9, 8], [1.005, 0.45, 8], [2.71, 0.3, 5], [2.722, 0.15, 5], [5.15, 0.1, 3], [8.3, 0.04, 1.8]];
+    partials.forEach(([r, a, d]) => {
+      const o = actx.createOscillator(); o.type = "sine"; o.frequency.value = base * r;
+      const g = actx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(a, t + 0.06);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      o.connect(g); g.connect(master); o.start(t); o.stop(t + d + 0.1);
+    });
+  } catch (e) {}
+}
+
+/* =========================================================
+   Bildschirm wach halten (Screen Wake Lock)
+   ========================================================= */
+let wakeLock = null, wantWake = false;
+async function requestWake() {
+  wantWake = true;
+  try { if ("wakeLock" in navigator && !wakeLock) { wakeLock = await navigator.wakeLock.request("screen"); wakeLock.addEventListener("release", () => { wakeLock = null; }); } } catch (e) { wakeLock = null; }
+}
+function releaseWake() { wantWake = false; try { if (wakeLock) wakeLock.release(); } catch (e) {} wakeLock = null; }
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && wantWake) requestWake(); });
+
+/* =========================================================
+   Timer-Zustand
+   ========================================================= */
+const state = { idx: 0, total: 0, remaining: 0, running: false, endAt: 0, finished: false, note: "" };
+
+function setPhase(i, note) {
+  state.idx = Math.max(0, Math.min(PHASES.length - 1, i));
+  state.total = settings.durations[PHASES[state.idx]] * 60000;
+  state.remaining = state.total;
+  state.running = false;
+  state.finished = false;
+  state.note = note || "";
+  render();
+}
+function start() {
+  if (state.finished) setPhase(0);
+  if (state.remaining <= 0) return;
+  ensureAudio();
+  state.running = true; state.note = "";
+  state.endAt = Date.now() + state.remaining;
+  requestWake();
+  render();
+}
+function pause() {
+  if (!state.running) return;
+  state.remaining = Math.max(0, state.endAt - Date.now());
+  state.running = false;
+  render();
+}
+function toggle() { state.running ? pause() : start(); }
+function next() { if (state.idx < PHASES.length - 1) setPhase(state.idx + 1); }
+function prev() { if (state.finished) setPhase(PHASES.length - 1); else if (state.idx > 0) setPhase(state.idx - 1); }
+function resetAll() { setPhase(0); releaseWake(); }
+
+function tick() {
+  if (!state.running) return;
+  state.remaining = state.endAt - Date.now();
+  if (state.remaining <= 0) {
+    state.remaining = 0; state.running = false;
+    bowl();
+    if (state.idx < PHASES.length - 1) {
+      setPhase(state.idx + 1, T().timeUp + " " + PHASE_NAMES[PHASES[state.idx + 1]]);
+    } else {
+      state.finished = true; render();
+    }
+    return;
+  }
+  renderTimer();
+}
+
+/* =========================================================
+   Darstellung
+   ========================================================= */
+const ICON_PLAY = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>';
+const ICON_PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4.2" height="14" rx="1.2"/><rect x="13.8" y="5" width="4.2" height="14" rx="1.2"/></svg>';
+
+function renderTimer() {
+  $("countdown").textContent = fmt(state.remaining);
+  const frac = state.total ? 1 - state.remaining / state.total : 0;
+  $("fill").style.width = (state.finished ? 100 : Math.max(0, Math.min(1, frac)) * 100) + "%";
+}
+function render() {
+  const t = T(), p = PHASES[state.idx], ph = t.phases[p];
+  document.body.dataset.phase = p;
+  lastDigital = ""; // Datum sofort in neuer Sprache
+  document.querySelectorAll(".phase-btn").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.p === p)));
+  PHASES.forEach((k) => { $("sub-" + k).textContent = t.phases[k].sub; $("sub-" + k).lang = settings.lang || "fr"; $("min-" + k).textContent = minutesLabel(settings.durations[k]); });
+
+  if (state.finished) {
+    $("instr").textContent = t.doneTitle;
+    $("detail").textContent = t.doneDetail;
+    $("status").textContent = "";
+  } else {
+    $("instr").textContent = ph.instr;
+    $("detail").textContent = ph.detail;
+    $("status").textContent = state.running ? "" : (state.note || (state.remaining < state.total ? t.paused : t.ready));
+  }
+  ["instr", "detail", "status", "phrasesTitle", "motiv", "lvlA", "lvlB"].forEach((id) => { $(id).lang = settings.lang || "fr"; });
+
+  $("timerCard").classList.toggle("paused", !state.running);
+  const play = $("btnPlay");
+  if (state.running) { play.innerHTML = ICON_PAUSE + "Pause"; play.setAttribute("aria-label", "Pause"); }
+  else if (state.finished) { play.innerHTML = ICON_PLAY + "Neustart"; play.setAttribute("aria-label", "Neu starten"); }
+  else { const resumed = state.remaining < state.total; play.innerHTML = ICON_PLAY + (resumed ? "Fortsetzen" : "Start"); play.setAttribute("aria-label", resumed ? "Fortsetzen" : "Start"); }
+  $("btnPrev").disabled = state.idx === 0 && !state.finished;
+  $("btnNext").disabled = state.idx === PHASES.length - 1 || state.finished;
+
+  // Redemittel
+  $("phrasesTitle").textContent = t.phrasesTitle;
+  $("lvlA").textContent = t.levelA; $("lvlB").textContent = t.levelB;
+  const list = (arr) => arr.map((x) => "<li>" + esc(x) + "</li>").join("");
+  $("listA").innerHTML = list(t.phrases[p].a); $("listA").lang = settings.lang || "fr";
+  $("listB").innerHTML = list(t.phrases[p].b); $("listB").lang = settings.lang || "fr";
+
+  // Konnektoren
+  $("motiv").textContent = ph.motiv;
+  $("connRow").innerHTML = t.connectors.map(([w, tr]) => '<div class="conn-item"><span class="w" lang="' + (settings.lang || "fr") + '">' + esc(w) + '</span><span class="tr" lang="de">' + esc(tr) + "</span></div>").join("");
+
+  // Ton-Schalter
+  $("btnSound").setAttribute("aria-pressed", String(settings.sound));
+  $("soundLabel").textContent = settings.sound ? "Ton an" : "Ton aus";
+
+  renderTimer();
+}
+function esc(s) { return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+/* =========================================================
+   Aufgabe
+   ========================================================= */
+const taskEl = $("task");
+function autoGrow() { taskEl.style.height = "auto"; taskEl.style.height = taskEl.scrollHeight + "px"; }
+let saveTimer = null;
+taskEl.addEventListener("input", () => { autoGrow(); clearTimeout(saveTimer); saveTimer = setTimeout(() => { settings.task = taskEl.value; saveSettings(); }, 400); });
+taskEl.addEventListener("focus", () => $("taskCard").classList.add("editing"));
+taskEl.addEventListener("blur", () => { $("taskCard").classList.remove("editing"); settings.task = taskEl.value; saveSettings(); });
+taskEl.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.preventDefault(); taskEl.blur(); } });
+
+/* =========================================================
+   Bestätigungsdialog (für Tastenkürzel & Neustart)
+   ========================================================= */
+let confirmAction = null;
+function askConfirm(question, action) {
+  confirmAction = action;
+  $("confirmQ").textContent = question;
+  $("confirm").classList.add("open");
+  $("confirmYes").focus({ preventScroll: true });
+}
+function closeConfirm(ok) {
+  const a = confirmAction; confirmAction = null;
+  $("confirm").classList.remove("open");
+  if (document.activeElement) document.activeElement.blur();
+  if (ok && a) a();
+}
+$("confirmYes").addEventListener("click", () => closeConfirm(true));
+$("confirmNo").addEventListener("click", () => closeConfirm(false));
+$("confirm").addEventListener("click", (e) => { if (e.target.id === "confirm") closeConfirm(false); });
+const isConfirmOpen = () => $("confirm").classList.contains("open");
+const isSetupOpen = () => $("setup").classList.contains("open");
+
+/* =========================================================
+   Tastenkürzel: Leertaste, Pfeil links/rechts (mit Bestätigung)
+   ========================================================= */
+function inTextField(el) { return el && (el.tagName === "TEXTAREA" || (el.tagName === "INPUT" && el.type !== "checkbox")); }
+document.addEventListener("keydown", (e) => {
+  if (isConfirmOpen()) {
+    if (e.key === "Enter") { e.preventDefault(); closeConfirm(true); }
+    else if (e.key === "Escape") { e.preventDefault(); closeConfirm(false); }
+    else if (e.key === " ") { e.preventDefault(); }
+    return;
+  }
+  if (isSetupOpen() || inTextField(document.activeElement) || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === " " || e.code === "Space") {
+    e.preventDefault();
+    if (e.repeat) return;
+    const q = state.running ? "Timer pausieren?" : state.finished ? "Von vorn beginnen?" : (state.remaining < state.total ? "Timer fortsetzen?" : "Timer starten?");
+    askConfirm(q, toggle);
+  } else if (e.key === "ArrowRight") {
+    e.preventDefault();
+    if (state.idx < PHASES.length - 1 && !state.finished) askConfirm("Zur nächsten Phase (" + PHASE_NAMES[PHASES[state.idx + 1]] + ") wechseln?", next);
+  } else if (e.key === "ArrowLeft") {
+    e.preventDefault();
+    if (state.finished) askConfirm("Zurück zur Phase Share?", prev);
+    else if (state.idx > 0) askConfirm("Zur vorherigen Phase (" + PHASE_NAMES[PHASES[state.idx - 1]] + ") wechseln?", prev);
+  }
+});
+// verhindert, dass die Leertaste zusätzlich einen fokussierten Button auslöst
+document.addEventListener("keyup", (e) => { if ((e.key === " " || e.code === "Space") && !inTextField(document.activeElement)) e.preventDefault(); });
+
+/* =========================================================
+   Bedienelemente
+   ========================================================= */
+function onTap(id, fn) { $(id).addEventListener("click", (e) => { e.currentTarget.blur(); fn(); }); }
+onTap("btnPlay", toggle);
+onTap("btnNext", next);
+onTap("btnPrev", prev);
+onTap("btnReset", () => askConfirm("Von vorn beginnen?", resetAll));
+document.querySelectorAll(".phase-btn").forEach((b) => b.addEventListener("click", () => { b.blur(); setPhase(PHASES.indexOf(b.dataset.p)); }));
+onTap("btnSound", () => { settings.sound = !settings.sound; saveSettings(); render(); if (settings.sound) bowl(true); });
+onTap("btnSetup", () => openSetup());
+
+(function setupFullscreen() {
+  const de = document.documentElement;
+  const req = de.requestFullscreen || de.webkitRequestFullscreen;
+  if (!req) return;
+  const btn = $("btnFull"); btn.hidden = false;
+  btn.addEventListener("click", () => {
+    btn.blur();
+    try {
+      const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+      if (fsEl) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      else req.call(de);
+    } catch (e) {}
+  });
+})();
+
+/* =========================================================
+   Einrichtung
+   ========================================================= */
+let draftLang = null;
+function openSetup() {
+  if (state.running) pause();
+  draftLang = settings.lang;
+  PHASES.forEach((p) => { $("dur-" + p).value = deNum(settings.durations[p]); });
+  $("setupSound").checked = settings.sound;
+  syncSetup();
+  $("setup").classList.add("open");
+}
+function syncSetup() {
+  document.querySelectorAll(".lang-btn").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === draftLang)));
+  $("setupSave").disabled = !draftLang;
+}
+document.querySelectorAll(".lang-btn").forEach((b) => b.addEventListener("click", () => { draftLang = b.dataset.lang; syncSetup(); }));
+document.querySelectorAll(".stepper").forEach((st) => {
+  const input = st.querySelector("input");
+  st.querySelectorAll("button").forEach((btn) => btn.addEventListener("click", () => {
+    const cur = clampMinutes(input.value);
+    const step = cur < 2 || (cur === 2 && btn.dataset.step === "-1") ? 0.5 : 1;
+    input.value = deNum(clampMinutes(cur + Number(btn.dataset.step) * step));
+  }));
+  input.addEventListener("change", () => { input.value = deNum(clampMinutes(input.value)); });
+});
+$("testSound").addEventListener("click", () => bowl(true));
+$("setupSave").addEventListener("click", () => {
+  if (!draftLang) return;
+  ensureAudio();
+  settings.lang = draftLang;
+  PHASES.forEach((p) => { settings.durations[p] = clampMinutes($("dur-" + p).value); });
+  settings.sound = $("setupSound").checked;
+  saveSettings();
+  $("setup").classList.remove("open");
+  setPhase(0);
+});
+$("setupClear").addEventListener("click", () => {
+  clearSettings();
+  settings = structuredCloneSafe(DEFAULTS);
+  taskEl.value = ""; autoGrow();
+  draftLang = null;
+  PHASES.forEach((p) => { $("dur-" + p).value = deNum(DEFAULTS.durations[p]); });
+  $("setupSound").checked = true;
+  syncSetup();
+  $("setupClear").textContent = "Gelöscht ✓";
+  setTimeout(() => { $("setupClear").textContent = "Gespeicherte Daten löschen"; }, 1800);
+});
+
+/* =========================================================
+   Start
+   ========================================================= */
+taskEl.value = settings.task; autoGrow();
+setPhase(0);
+requestAnimationFrame(updateClocks);
+setInterval(tick, 200);
+if (!settings.lang) openSetup();
+window.addEventListener("resize", autoGrow);
+</script>
+</body>
+</html>
