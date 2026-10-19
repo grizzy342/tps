@@ -71,7 +71,3 @@ Der Link des Logos wird automatisch aus dieser Adresse abgeleitet und zeigt auf 
 ## Weitere Sprachen ergänzen
 
 Alle Texte stehen zentral im Objekt `LANG` am Anfang des Skripts. Für eine neue Sprache einen Block (z. B. `fr`) kopieren, übersetzen und in der Einrichtung einen weiteren Sprach-Button ergänzen.
-
-## Lizenz
-
-MIT – siehe [LICENSE](LICENSE). Freie Nutzung, Veränderung und Weitergabe, auch durch Kolleginnen und Kollegen.
