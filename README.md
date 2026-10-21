@@ -6,18 +6,27 @@ Ein schlanker Phasen-Timer für die Think-Pair-Share-Methode im Französisch- un
 
 - **Einrichtung beim ersten Start:** Fach (Französisch oder Spanisch) und Dauer jeder Phase wählen; halbe Minuten sind möglich (z. B. 1,5).
 - **Aufgabe:** wird von der Lehrkraft direkt in der Zielsprache eingegeben und während aller Phasen groß angezeigt.
-- **Phasen Think, Pair, Share:** farbig hervorgehoben, mit festen Arbeitsanweisungen in einfacher Zielsprache (A1–A2).
+- **Phasen Think, Pair, Share:** farbig hervorgehoben, mit Emojis und festen Arbeitsanweisungen in einfacher Zielsprache (A1–A2):
+
+  | Phase | Spanisch | Französisch |
+  |---|---|---|
+  | Think | Pensar 🤔🤫 | Réfléchir 🤔🤫 |
+  | Pair | Comparar en parejas 💬 | Comparer à deux 💬 |
+  | Share | Comparamos juntos 👥 | Comparons ensemble 👥 |
+
+- **5-Minuten-Pause** („Pequeñito recreo 😊“ / „Petite récré 😊“): Die laufende Phase wird angehalten und gemerkt, eine 5-minütige Pause läuft (verlängerbar). Danach erklingt die Klangschale und es geht an derselben Stelle weiter – der Timer bleibt pausiert, bis „Fortsetzen“ gedrückt wird. Ein erneuter Klick auf die Pausen-Kachel beendet die Pause vorzeitig.
 - **Redemittel pro Phase** in zwei Niveaustufen (★ einfach, ★★ erweitert).
 - **Konnektoren** in jeder Phase, nebeneinander mit deutscher Übersetzung:
   - Französisch: d'abord, puis, après, ensuite, enfin
   - Spanisch: primero, después, luego, además, al final
 - **Ruhiger Countdown mit Fortschrittsbalken**, ohne Blinken oder Alarmfarben.
+- **Zeit verlängern oder verkürzen:** Mit „+ ½ Min.“ / „+ 1 Min.“ und „− ½ Min.“ / „− 1 Min.“ neben dem Countdown lässt sich die aktuelle Phase (oder Pause) jederzeit anpassen – auch während sie läuft. Beim Verkürzen bleiben mindestens 5 Sekunden übrig; reicht die Restzeit nicht, ist der Button ausgegraut.
 - **Klangschalen-Signal** beim Phasenwechsel, direkt im Browser erzeugt (keine Audiodatei); abschaltbar.
 - **Automatischer Phasenwechsel:** Nach Ablauf erklingt der Ton, die nächste Phase wird vorbereitet und startet per Klick.
-- **Digitale Uhr** mit Wochentag und Datum in der Zielsprache, **analoge Uhr** rechts.
+- **Große digitale Uhr** (gleich groß wie der Countdown) mit Wochentag und Datum in der Zielsprache, **analoge Uhr** rechts.
 - **Yin-Yang-Logo**, das die Farbe mit der Phase wechselt und zum GitHub-Repository führt.
 - **Bildschirm bleibt wach**, solange der Timer läuft (sofern der Browser das unterstützt).
-- **Vollbild** für die Präsentation.
+- **Vollbild** für die Präsentation; im Vollbild wird der Button zu „Vollbild beenden“.
 
 ## Geräte & Browser
 
@@ -41,6 +50,8 @@ Geeignet für aktuelle Versionen von Safari, Chrome, Edge, Firefox und Samsung I
 | Nächste Phase | Pfeil-Button rechts oder Phasen-Button | Pfeil rechts (mit Bestätigung) |
 | Vorherige Phase | Pfeil-Button links oder Phasen-Button | Pfeil links (mit Bestätigung) |
 | Von vorn | Kreispfeil-Button | – |
+| Zeit verlängern / verkürzen | „+ ½ Min.“ / „+ 1 Min.“ / „− ½ Min.“ / „− 1 Min.“ | – |
+| 5-Minuten-Pause starten / beenden | Pausen-Kachel (rosa) | Pfeiltaste während der Pause beendet sie (mit Bestätigung) |
 | Dialog bestätigen / abbrechen | OK / Abbrechen | Enter / Esc |
 
 Tastenkürzel sind deaktiviert, solange ins Aufgabenfeld getippt wird. Mit Esc oder einem Tipp außerhalb des Feldes werden sie wieder aktiv.
@@ -56,7 +67,7 @@ Tastenkürzel sind deaktiviert, solange ins Aufgabenfeld getippt wird. Mit Esc o
 ## Veröffentlichen mit GitHub Pages
 
 1. Neues Repository anlegen, z. B. `think-pair-share`.
-2. `index.html`, `README.md` und `LICENSE` hochladen.
+2. `index.html` und `README.md` hochladen.
 3. Unter **Settings → Pages** als Quelle „Deploy from a branch“, Branch `main`, Ordner `/ (root)` wählen.
 4. Nach kurzer Zeit ist die Seite erreichbar unter `https://BENUTZERNAME.github.io/think-pair-share/`.
 
